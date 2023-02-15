@@ -13,12 +13,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- <script  src="./three.js"></script> -->
+    <!-- <script  src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script> -->
+    
+    <!-- <script type="importmap">
+			{
+				"imports": {
+					"three": "https://threejs.org/build/three.js"
+				}
+			}
+		</script>
+    <script type="module" src="https://threejs.org/examples/jsm/loaders/STLLoader.js"></script> -->
+ <!-- Plyr -->
+ <script src="https://cdn.plyr.io/3.6.3/plyr.js"></script>
+  <!-- Custom JavaScript -->
+
   </head>
   <body>
     <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <img class="img-fluid" width="100" style="border=radius:50%" src="profile pic.jpg" alt="profile">
-        <a class="navbar-brand" href="#">My Portfolio</a>
+        <img class="img-fluid mr-3" width="100" style="border-radius: 50%" src="profile pic.jpg" alt="profile">
+        <a class="navbar-brand" href="#"><h1>S M Hemant</h1></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -52,7 +67,7 @@
   <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
     <section id="about">
       <h2>About Me</h2>
-      <p>My name is Shekhar Mohanty Hemant (S.M.Hemant), was born and grew up in Jamshedpur a city in the state Jharkhand.
+      <p>My name is Shekhar Mohanty Hemant, was born and grew up in Jamshedpur a city in the state Jharkhand.
       </p>
     </section>
     <section id="education">
@@ -92,13 +107,37 @@
 
     </section>
   </main>
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- STLLoader.js -->
-  <script src="https://cdn.rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/STLLoader.js"></script>
-  <!-- Plyr -->
-  <script src="https://cdn.plyr.io/3.6.3/plyr.js"></script>
-  <!-- Custom JavaScript -->
-  <script src="script.js"></script>
+ 
+  <!-- <script >
+    // Create a scene
+    const scene = new THREE.Scene();
+  
+    // Create a camera
+    const camera = new THREE.PerspectiveCamera(
+      75, window.innerWidth / window.innerHeight, 0.1, 1000
+    );
+    camera.position.z = 5;
+  
+    // Create a renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('container').appendChild(renderer.domElement);
+  
+    // Load the STL file
+    const loader = new THREE.STLLoader();
+    loader.load('mymodel.stl', (geometry) => {
+      const material = new THREE.MeshPhongMaterial({ color: 0xff5533 });
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+    });
+  
+    // Render the scene
+    const animate = function () {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    };
+    animate();
+  </script> -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
