@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.skypack.dev/three';
 import { STLLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/STLLoader.js';
-
+console.log(three)
 // Create a Three.js scene
 const scene = new THREE.Scene();
 
