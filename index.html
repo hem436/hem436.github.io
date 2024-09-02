@@ -64,14 +64,14 @@
   <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
     <section id="about">
       <h2>About Me</h2>
-      <p>My name is Shekhar Mohanty Hemant, was born and grew up in Jamshedpur a city in the state Jharkhand.
+      <p>Problem solver, interested in computers, space and robotics.
       </p>
     </section>
     <section id="education">
       <h2>Education</h2>
       <ul>
-        <li>Matriculation from B.F.A.H.S</li>
-        <li>Intermediate from Kolhan University</li>
+        <li></li>
+        <li></li>
         <li class="text-success">Bachelor's Degree in Data Science from IIT Madras</li>
       </ul>
     </section>
@@ -104,101 +104,74 @@
 
     </section>
   </main>
- 
-  <script type="module">
-    import * as THREE from 'three';
-    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    <script>
+        // STL files to be displayed
+        const stlFiles = [
+            './mymodel.glb'
+        ];
 
-			import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
-			import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+        // Get all container elements
+        const containers = document.querySelectorAll('.stl-container');
 
-			let camera, scene, renderer;
+        // Function to initialize and load STL file in a given container
+        function loadSTL(container, file) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
 
-			init();
-			render();
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
 
-			function init() {
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1, 1, 1).normalize();
+            scene.add(directionalLight);
 
-				const container = document.createElement( 'div' );
-				document.body.appendChild( container );
+            const loader = new THREE.STLLoader();
+            loader.load(file, function (geometry) {
+                const material = new THREE.MeshPhongMaterial({ color: 0x0077ff });
+                const mesh = new THREE.Mesh(geometry, material);
+                scene.add(mesh);
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.toneMapping = THREE.ACESFilmicToneMapping;
-				renderer.toneMappingExposure = 1;
-				container.appendChild( renderer.domElement );
+                const middle = new THREE.Vector3();
+                geometry.computeBoundingBox();
+                geometry.boundingBox.getCenter(middle);
+                mesh.position.sub(middle);
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.set( 0, 100, 0 );
+                camera.position.z = 100;
+                camera.position.y = 100;
+                camera.lookAt(mesh.position);
 
-				const environment = new RoomEnvironment( renderer );
-				const pmremGenerator = new THREE.PMREMGenerator( renderer );
+                function animate() {
+                    requestAnimationFrame(animate);
+                    mesh.rotation.x += 0.01;
+                    mesh.rotation.y += 0.01;
+                    renderer.render(scene, camera);
+                }
 
-				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0xbbbbbb );
-				scene.environment = pmremGenerator.fromScene( environment ).texture;
-				environment.dispose();
+                animate();
+            });
+        }
 
-				const grid = new THREE.GridHelper( 500, 10, 0xffffff, 0xffffff );
-				grid.material.opacity = 0.5;
-				grid.material.depthWrite = false;
-				grid.material.transparent = true;
-				scene.add( grid );
+        // Load each STL file into its corresponding container
+        containers.forEach((container, index) => {
+            if (stlFiles[index]) {
+                loadSTL(container, stlFiles[index]);
+            }
+        });
 
-				const ktx2Loader = new KTX2Loader()
-					.setTranscoderPath( 'jsm/libs/basis/' )
-					.detectSupport( renderer );
-
-				const loader = new GLTFLoader()
-				loader.setMeshoptDecoder( MeshoptDecoder );
-				loader.load( 'mymodel.glb', function ( gltf ) {
-
-					// coffeemat.glb was produced from the source scene using gltfpack:
-					// gltfpack -i coffeemat/scene.gltf -o coffeemat.glb -cc -tc
-					// The resulting model uses EXT_meshopt_compression (for geometry) and KHR_texture_basisu (for texture compression using ETC1S/BasisLZ)
-
-					gltf.scene.position.y = 8;
-
-					scene.add( gltf.scene );
-
-					render();
-
-				} );
-
-				const controls = new OrbitControls( camera, renderer.domElement );
-				controls.addEventListener( 'change', render ); // use if there is no animation loop
-				controls.minDistance = 400;
-				controls.maxDistance = 1000;
-				controls.target.set( 10, 90, - 16 );
-				controls.update();
-
-				window.addEventListener( 'resize', onWindowResize );
-
-			}
-
-			function onWindowResize() {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
-
-				render();
-
-			}
-
-			//
-
-			function render() {
-
-				renderer.render( scene, camera );
-
-			}
-
-  </script>
+        // Handle window resize for each renderer
+        window.addEventListener('resize', () => {
+            containers.forEach(container => {
+                const canvas = container.querySelector('canvas');
+                if (canvas) {
+                    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+        }, false);
+    </script>
 
 </body>
 </html>
