@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin - Content Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Admin-specific styles */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-title i {
+            color: var(--accent-primary);
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-secondary);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .tab.active {
+            color: var(--accent-primary);
+            background: var(--bg-tertiary);
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .items-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .item-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .item-card:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .icon-btn.delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Admin Modal - override main styles */
+        .admin-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--modal-overlay, rgba(0, 0, 0, 0.8));
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+        }
+
+        .admin-modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            min-height: 50px;
+        }
+
+        .tags-input-container:focus-within {
+            border-color: var(--accent-primary);
+        }
+
+        .tag-item {
+            background: rgba(45, 212, 191, 0.2);
+            color: var(--accent-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tag-item button {
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+
+        .tags-input {
+            flex: 1;
+            min-width: 100px;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            padding: 0.25rem;
+        }
+
+        .tags-input:focus {
+            outline: none;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Code output area */
+        .code-output {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .code-output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .code-output-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-output-title i {
+            color: var(--accent-primary);
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--bg-tertiary);
+        }
+
+        .preview-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Extra variables for admin */
+        :root {
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+        }
+
+        [data-theme="light"] {
+            --success: #1a7f37;
+            --warning: #9a6700;
+            --danger: #cf222e;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-secondary);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .tab.active {
+            color: var(--accent-primary);
+            background: var(--bg-tertiary);
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .items-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .item-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .item-card:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .icon-btn.delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            min-height: 50px;
+        }
+
+        .tags-input-container:focus-within {
+            border-color: var(--accent-primary);
+        }
+
+        .tag-item {
+            background: rgba(45, 212, 191, 0.2);
+            color: var(--accent-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tag-item button {
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+
+        .tags-input {
+            flex: 1;
+            min-width: 100px;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            padding: 0.25rem;
+        }
+
+        .tags-input:focus {
+            outline: none;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Code output area */
+        .code-output {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .code-output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .code-output-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-output-title i {
+            color: var(--accent-primary);
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--bg-tertiary);
+        }
+
+        .preview-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-link:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: rotate(15deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-cog"></i>
+                Portfolio Content Manager
+            </h1>
+            <div class="admin-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                    <i class="fas fa-sun" id="theme-icon"></i>
+                </button>
+                <a href="index.html" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-eye"></i>
+                    Preview Site
+                </a>
+                <button class="btn btn-primary" onclick="generateCode()">
+                    <i class="fas fa-code"></i>
+                    Generate Code
+                </button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="blogs">
+                <i class="fas fa-pen"></i>
+                Blog Posts
+            </button>
+            <button class="tab" data-tab="projects">
+                <i class="fas fa-code"></i>
+                Projects
+            </button>
+            <button class="tab" data-tab="research">
+                <i class="fas fa-flask"></i>
+                Research
+            </button>
+            <button class="tab" data-tab="profile">
+                <i class="fas fa-user"></i>
+                Profile
+            </button>
+        </div>
+
+        <!-- Blog Posts Section -->
+        <div class="content-section active" id="blogs-section">
+            <div class="section-header">
+                <h2 class="section-title">Blog Posts</h2>
+                <button class="btn btn-primary" onclick="openModal('blog')">
+                    <i class="fas fa-plus"></i>
+                    Add Blog Post
+                </button>
+            </div>
+            <div class="items-grid" id="blogs-list"></div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="content-section" id="projects-section">
+            <div class="section-header">
+                <h2 class="section-title">Projects</h2>
+                <button class="btn btn-primary" onclick="openModal('project')">
+                    <i class="fas fa-plus"></i>
+                    Add Project
+                </button>
+            </div>
+            <div class="items-grid" id="projects-list"></div>
+        </div>
+
+        <!-- Research Section -->
+        <div class="content-section" id="research-section">
+            <div class="section-header">
+                <h2 class="section-title">Research Work</h2>
+                <button class="btn btn-primary" onclick="openModal('research')">
+                    <i class="fas fa-plus"></i>
+                    Add Research
+                </button>
+            </div>
+            <div class="items-grid" id="research-list"></div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="content-section" id="profile-section">
+            <div class="section-header">
+                <h2 class="section-title">Profile Information</h2>
+            </div>
+            <div class="item-card" style="flex-direction: column; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="profile-name" value="Shekhar Mohanty Hemant">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Professional Title</label>
+                    <input type="text" class="form-input" id="profile-title" value="Data Science & AI Professional | IIT Madras Graduate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="profile-email" value="hemant436268s@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-input" id="profile-phone" value="+91-9110054046">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="profile-location" value="India">
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Output -->
+        <div class="code-output" id="code-output" style="display: none;">
+            <div class="code-output-header">
+                <span class="code-output-title">
+                    <i class="fas fa-file-code"></i>
+                    Generated Code - Copy this to app.js
+                </span>
+                <button class="btn btn-primary btn-sm" onclick="copyCode()">
+                    <i class="fas fa-copy"></i>
+                    Copy Code
+                </button>
+            </div>
+            <div class="code-block">
+                <pre id="generated-code"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Modal -->
+    <div class="admin-modal-overlay" id="blog-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="blog-modal-title">Add Blog Post</h3>
+                <button class="modal-close" onclick="closeModal('blog')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="blog-edit-id">
+                <div class="form-group">
+                    <label class="form-label">Post Title *</label>
+                    <input type="text" class="form-input" id="blog-title" placeholder="e.g., Getting Started with Machine Learning">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date *</label>
+                    <input type="text" class="form-input" id="blog-date" placeholder="e.g., January 7, 2026">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Excerpt (Short Preview) *</label>
+                    <textarea class="form-input" id="blog-excerpt" rows="2" placeholder="A brief description shown in the blog list..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Content *</label>
+                    <textarea class="form-input" id="blog-content" rows="8" placeholder="Write your full blog post content here. Use blank lines for new paragraphs."></textarea>
+                    <p class="form-hint">Separate paragraphs with blank lines. They will be automatically formatted.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('blog')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveBlog()">
+                    <i class="fas fa-save"></i>
+                    Save Post
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="admin-modal-overlay" id="project-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="project-modal-title">Add Project</h3>
+                <button class="modal-close" onclick="closeModal('project')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="project-edit-id">
+                <div class="form-group">
+                    <label class="form-label">Project Title *</label>
+                    <input type="text" class="form-input" id="project-title" placeholder="e.g., AI-Powered Chatbot">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date *</label>
+                    <input type="text" class="form-input" id="project-date" placeholder="e.g., Dec 2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-input" id="project-description" rows="4" placeholder="Describe what the project does..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Technologies Used</label>
+                    <div class="tags-input-container" id="project-tech-container">
+                        <input type="text" class="tags-input" id="project-tech-input" placeholder="Type and press Enter to add...">
+                    </div>
+                    <p class="form-hint">Press Enter after each technology (e.g., Python, React, TensorFlow)</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">GitHub URL</label>
+                    <input type="text" class="form-input" id="project-github" placeholder="https://github.com/username/repo">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Live Demo URL</label>
+                    <input type="text" class="form-input" id="project-demo" placeholder="https://your-demo-site.com">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('project')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProject()">
+                    <i class="fas fa-save"></i>
+                    Save Project
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Research Modal -->
+    <div class="admin-modal-overlay" id="research-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="research-modal-title">Add Research</h3>
+                <button class="modal-close" onclick="closeModal('research')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="research-edit-id">
+                <div class="form-group">
+                    <label class="form-label">Publication Title *</label>
+                    <input type="text" class="form-input" id="research-title" placeholder="e.g., Novel Approach to Machine Learning">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Conference/Journal Name *</label>
+                    <input type="text" class="form-input" id="research-conference" placeholder="e.g., IEEE Conference on AI 2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Year *</label>
+                    <input type="text" class="form-input" id="research-year" placeholder="e.g., 2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Abstract</label>
+                    <textarea class="form-input" id="research-abstract" rows="4" placeholder="Brief abstract or description of the research..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Paper Link (DOI/PDF URL)</label>
+                    <input type="text" class="form-input" id="research-link" placeholder="https://doi.org/... or PDF link">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('research')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveResearch()">
+                    <i class="fas fa-save"></i>
+                    Save Research
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Saved successfully!</span>
+    </div>
+
+    <script>
+        // Theme handling
+        let currentTheme = localStorage.getItem('portfolio-theme') || 'dark';
+        
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            const icon = document.getElementById('theme-icon');
+            icon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('portfolio-theme', currentTheme);
+            applyTheme();
+        }
+        
+        // Apply theme on load
+        applyTheme();
+
+        // Data storage
+        let blogs = [];
+        let projects = [];
+        let research = [];
+        let projectTechTags = [];
+
+        // Initialize with sample data
+        function initializeData() {
+            // Load from localStorage or use defaults
+            const savedBlogs = localStorage.getItem('portfolio_blogs');
+            const savedProjects = localStorage.getItem('portfolio_projects');
+            const savedResearch = localStorage.getItem('portfolio_research');
+
+            blogs = savedBlogs ? JSON.parse(savedBlogs) : [
+                {
+                    id: 1,
+                    title: "Getting Started with ROS2 Navigation Stack",
+                    date: "December 15, 2024",
+                    excerpt: "A comprehensive guide to setting up and using the ROS2 Navigation2 stack for autonomous robot navigation in simulated environments.",
+                    content: "In this post, I'll walk you through the process of setting up ROS2 Navigation2 stack for autonomous robot navigation.\n\nThe Navigation2 stack is a powerful tool that provides a complete navigation solution for mobile robots."
+                },
+                {
+                    id: 2,
+                    title: "Understanding Machine Unlearning: A Practical Approach",
+                    date: "November 20, 2024",
+                    excerpt: "Exploring the concept of machine unlearning and how to implement it effectively in deep neural networks for privacy-preserving AI.",
+                    content: "Machine unlearning is an emerging field in AI that addresses the challenge of removing specific data from trained models without retraining from scratch."
+                },
+                {
+                    id: 3,
+                    title: "Building IoT Solutions with ESP32 and MQTT",
+                    date: "August 5, 2023",
+                    excerpt: "Learn how to create a complete IoT home automation system using ESP32, MQTT protocol, and a Vue.js frontend for real-time control.",
+                    content: "IoT (Internet of Things) has revolutionized how we interact with our homes and environments. In this tutorial, we'll build a complete home automation system."
+                },
+                {
+                    id: 4,
+                    title: "My Journey: From Trade Apprentice to IIT Madras",
+                    date: "January 10, 2023",
+                    excerpt: "A personal reflection on my unconventional path from a trade apprentice in electronics to pursuing a degree in Data Science at IIT Madras.",
+                    content: "Every journey has its unique path, and mine was far from conventional. After completing my trade apprenticeship at Shavak Nanavati Technical Institute, I never imagined I would one day be studying at IIT Madras."
+                }
+            ];
+
+            projects = savedProjects ? JSON.parse(savedProjects) : [
+                {
+                    id: 1,
+                    title: "Warehouse Inspection Robot",
+                    date: "Dec 2024",
+                    description: "Demonstrated autonomous navigation and object detection in a simulated warehouse environment using a robot with camera and lidar sensors.",
+                    tech: ["ROS2", "Gazebo", "Navigation2", "YOLOv5", "TurtleBot3", "Python"],
+                    github: "#",
+                    demo: "#"
+                },
+                {
+                    id: 2,
+                    title: "Spectral Classification (CH2IIRS)",
+                    date: "Aug 2024",
+                    description: "Created a pipeline for spectral classification of Chandrayaan-2 IIRS dataset of Mare Moscoviense and Mare Gardner crater.",
+                    tech: ["Python", "Deep Learning", "1D-CNN", "KMeans", "MNF", "Remote Sensing"],
+                    github: "#",
+                    demo: "#"
+                },
+                {
+                    id: 3,
+                    title: "Machine Unlearning",
+                    date: "May 2024",
+                    description: "Demonstrated machine unlearning for classification tasks on deep neural networks at ACM Workshop 2024.",
+                    tech: ["PyTorch", "Deep Learning", "Neural Networks", "Python"],
+                    github: "#",
+                    demo: "#"
+                }
+            ];
+
+            research = savedResearch ? JSON.parse(savedResearch) : [
+                {
+                    id: 1,
+                    title: "Fast Yet Effective Machine Unlearning",
+                    conference: "ACM Workshop 2024",
+                    year: "2024",
+                    abstract: "Presented implementation and demonstration of machine unlearning techniques for classification tasks on deep neural networks.",
+                    link: "#"
+                },
+                {
+                    id: 2,
+                    title: "Spectral Classification of Chandrayaan-2 IIRS Dataset",
+                    conference: "Remote Sensing Analysis Project",
+                    year: "2024",
+                    abstract: "Developed a comprehensive pipeline for spectral classification of lunar surface data from Mare Moscoviense and Mare Gardner crater.",
+                    link: "#"
+                }
+            ];
+
+            renderAll();
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('portfolio_blogs', JSON.stringify(blogs));
+            localStorage.setItem('portfolio_projects', JSON.stringify(projects));
+            localStorage.setItem('portfolio_research', JSON.stringify(research));
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-section`).classList.add('active');
+            });
+        });
+
+        // Modal functions
+        function openModal(type, editId = null) {
+            const modal = document.getElementById(`${type}-modal`);
+            const title = document.getElementById(`${type}-modal-title`);
+            
+            if (editId !== null) {
+                title.textContent = `Edit ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                populateEditForm(type, editId);
+            } else {
+                title.textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                clearForm(type);
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal(type) {
+            document.getElementById(`${type}-modal`).classList.remove('active');
+            clearForm(type);
+        }
+
+        function clearForm(type) {
+            if (type === 'blog') {
+                document.getElementById('blog-edit-id').value = '';
+                document.getElementById('blog-title').value = '';
+                document.getElementById('blog-date').value = '';
+                document.getElementById('blog-excerpt').value = '';
+                document.getElementById('blog-content').value = '';
+            } else if (type === 'project') {
+                document.getElementById('project-edit-id').value = '';
+                document.getElementById('project-title').value = '';
+                document.getElementById('project-date').value = '';
+                document.getElementById('project-description').value = '';
+                document.getElementById('project-github').value = '';
+                document.getElementById('project-demo').value = '';
+                projectTechTags = [];
+                renderTechTags();
+            } else if (type === 'research') {
+                document.getElementById('research-edit-id').value = '';
+                document.getElementById('research-title').value = '';
+                document.getElementById('research-conference').value = '';
+                document.getElementById('research-year').value = '';
+                document.getElementById('research-abstract').value = '';
+                document.getElementById('research-link').value = '';
+            }
+        }
+
+        function populateEditForm(type, id) {
+            if (type === 'blog') {
+                const blog = blogs.find(b => b.id === id);
+                if (blog) {
+                    document.getElementById('blog-edit-id').value = id;
+                    document.getElementById('blog-title').value = blog.title;
+                    document.getElementById('blog-date').value = blog.date;
+                    document.getElementById('blog-excerpt').value = blog.excerpt;
+                    document.getElementById('blog-content').value = blog.content;
+                }
+            } else if (type === 'project') {
+                const project = projects.find(p => p.id === id);
+                if (project) {
+                    document.getElementById('project-edit-id').value = id;
+                    document.getElementById('project-title').value = project.title;
+                    document.getElementById('project-date').value = project.date;
+                    document.getElementById('project-description').value = project.description;
+                    document.getElementById('project-github').value = project.github || '';
+                    document.getElementById('project-demo').value = project.demo || '';
+                    projectTechTags = [...project.tech];
+                    renderTechTags();
+                }
+            } else if (type === 'research') {
+                const res = research.find(r => r.id === id);
+                if (res) {
+                    document.getElementById('research-edit-id').value = id;
+                    document.getElementById('research-title').value = res.title;
+                    document.getElementById('research-conference').value = res.conference;
+                    document.getElementById('research-year').value = res.year;
+                    document.getElementById('research-abstract').value = res.abstract;
+                    document.getElementById('research-link').value = res.link || '';
+                }
+            }
+        }
+
+        // Save functions
+        function saveBlog() {
+            const editId = document.getElementById('blog-edit-id').value;
+            const title = document.getElementById('blog-title').value.trim();
+            const date = document.getElementById('blog-date').value.trim();
+            const excerpt = document.getElementById('blog-excerpt').value.trim();
+            const content = document.getElementById('blog-content').value.trim();
+
+            if (!title || !date || !excerpt || !content) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (editId) {
+                const index = blogs.findIndex(b => b.id === parseInt(editId));
+                if (index !== -1) {
+                    blogs[index] = { ...blogs[index], title, date, excerpt, content };
+                }
+            } else {
+                const newId = blogs.length > 0 ? Math.max(...blogs.map(b => b.id)) + 1 : 1;
+                blogs.push({ id: newId, title, date, excerpt, content });
+            }
+
+            saveData();
+            renderBlogs();
+            closeModal('blog');
+            showToast('Blog post saved successfully!');
+        }
+
+        function saveProject() {
+            const editId = document.getElementById('project-edit-id').value;
+            const title = document.getElementById('project-title').value.trim();
+            const date = document.getElementById('project-date').value.trim();
+            const description = document.getElementById('project-description').value.trim();
+            const github = document.getElementById('project-github').value.trim() || '#';
+            const demo = document.getElementById('project-demo').value.trim() || '#';
+
+            if (!title || !date || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (editId) {
+                const index = projects.findIndex(p => p.id === parseInt(editId));
+                if (index !== -1) {
+                    projects[index] = { ...projects[index], title, date, description, tech: [...projectTechTags], github, demo };
+                }
+            } else {
+                const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
+                projects.push({ id: newId, title, date, description, tech: [...projectTechTags], github, demo });
+            }
+
+            saveData();
+            renderProjects();
+            closeModal('project');
+            showToast('Project saved successfully!');
+        }
+
+        function saveResearch() {
+            const editId = document.getElementById('research-edit-id').value;
+            const title = document.getElementById('research-title').value.trim();
+            const conference = document.getElementById('research-conference').value.trim();
+            const year = document.getElementById('research-year').value.trim();
+            const abstract = document.getElementById('research-abstract').value.trim();
+            const link = document.getElementById('research-link').value.trim() || '#';
+
+            if (!title || !conference || !year) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (editId) {
+                const index = research.findIndex(r => r.id === parseInt(editId));
+                if (index !== -1) {
+                    research[index] = { ...research[index], title, conference, year, abstract, link };
+                }
+            } else {
+                const newId = research.length > 0 ? Math.max(...research.map(r => r.id)) + 1 : 1;
+                research.push({ id: newId, title, conference, year, abstract, link });
+            }
+
+            saveData();
+            renderResearch();
+            closeModal('research');
+            showToast('Research saved successfully!');
+        }
+
+        // Delete functions
+        function deleteBlog(id) {
+            if (confirm('Are you sure you want to delete this blog post?')) {
+                blogs = blogs.filter(b => b.id !== id);
+                saveData();
+                renderBlogs();
+                showToast('Blog post deleted');
+            }
+        }
+
+        function deleteProject(id) {
+            if (confirm('Are you sure you want to delete this project?')) {
+                projects = projects.filter(p => p.id !== id);
+                saveData();
+                renderProjects();
+                showToast('Project deleted');
+            }
+        }
+
+        function deleteResearch(id) {
+            if (confirm('Are you sure you want to delete this research entry?')) {
+                research = research.filter(r => r.id !== id);
+                saveData();
+                renderResearch();
+                showToast('Research entry deleted');
+            }
+        }
+
+        // Tech tags handling
+        document.getElementById('project-tech-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const value = e.target.value.trim();
+                if (value && !projectTechTags.includes(value)) {
+                    projectTechTags.push(value);
+                    renderTechTags();
+                }
+                e.target.value = '';
+            }
+        });
+
+        function renderTechTags() {
+            const container = document.getElementById('project-tech-container');
+            const input = document.getElementById('project-tech-input');
+            
+            container.innerHTML = '';
+            projectTechTags.forEach((tag, index) => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag-item';
+                tagEl.innerHTML = `${tag} <button onclick="removeTechTag(${index})">&times;</button>`;
+                container.appendChild(tagEl);
+            });
+            container.appendChild(input);
+        }
+
+        function removeTechTag(index) {
+            projectTechTags.splice(index, 1);
+            renderTechTags();
+        }
+
+        // Render functions
+        function renderBlogs() {
+            const container = document.getElementById('blogs-list');
+            if (blogs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-pen"></i>
+                        <p>No blog posts yet. Click "Add Blog Post" to create one.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = blogs.map(blog => `
+                <div class="item-card">
+                    <div class="item-info">
+                        <h3 class="item-title">${blog.title}</h3>
+                        <div class="item-meta">
+                            <span><i class="fas fa-calendar"></i> ${blog.date}</span>
+                        </div>
+                        <p class="item-excerpt">${blog.excerpt}</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="icon-btn" onclick="openModal('blog', ${blog.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteBlog(${blog.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projects-list');
+            if (projects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-code"></i>
+                        <p>No projects yet. Click "Add Project" to create one.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = projects.map(project => `
+                <div class="item-card">
+                    <div class="item-info">
+                        <h3 class="item-title">${project.title}</h3>
+                        <div class="item-meta">
+                            <span><i class="fas fa-calendar"></i> ${project.date}</span>
+                            <span>${project.tech.slice(0, 3).join(', ')}${project.tech.length > 3 ? '...' : ''}</span>
+                        </div>
+                        <p class="item-excerpt">${project.description.substring(0, 150)}...</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="icon-btn" onclick="openModal('project', ${project.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteProject(${project.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderResearch() {
+            const container = document.getElementById('research-list');
+            if (research.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-flask"></i>
+                        <p>No research entries yet. Click "Add Research" to create one.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = research.map(res => `
+                <div class="item-card">
+                    <div class="item-info">
+                        <h3 class="item-title">${res.title}</h3>
+                        <div class="item-meta">
+                            <span><i class="fas fa-book"></i> ${res.conference}</span>
+                            <span><i class="fas fa-calendar"></i> ${res.year}</span>
+                        </div>
+                        <p class="item-excerpt">${res.abstract}</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="icon-btn" onclick="openModal('research', ${res.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteResearch(${res.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAll() {
+            renderBlogs();
+            renderProjects();
+            renderResearch();
+        }
+
+        // Generate code
+        function generateCode() {
+            const profileName = document.getElementById('profile-name').value;
+            const profileTitle = document.getElementById('profile-title').value;
+            const profileEmail = document.getElementById('profile-email').value;
+            const profilePhone = document.getElementById('profile-phone').value;
+            const profileLocation = document.getElementById('profile-location').value;
+
+            const code = `// ===== GENERATED DATA - Copy this section to app.js =====
+
+const profileData = {
+    name: "${profileName}",
+    title: "${profileTitle}",
+    phone: "${profilePhone}",
+    email: "${profileEmail}",
+    linkedin: "linkedin.com/in/hemant-shekhar",
+    location: "${profileLocation}"
+};
+
+const blogData = ${JSON.stringify(blogs, null, 4).replace(/"(\w+)":/g, '$1:')};
+
+const projectsData = ${JSON.stringify(projects.map(p => ({
+    title: p.title,
+    date: p.date,
+    description: p.description,
+    tech: p.tech,
+    github: p.github,
+    demo: p.demo
+})), null, 4).replace(/"(\w+)":/g, '$1:')};
+
+const researchData = ${JSON.stringify(research.map(r => ({
+    title: r.title,
+    conference: r.conference,
+    year: r.year,
+    abstract: r.abstract,
+    link: r.link
+})), null, 4).replace(/"(\w+)":/g, '$1:')};
+
+// ===== END GENERATED DATA =====`;
+
+            document.getElementById('generated-code').textContent = code;
+            document.getElementById('code-output').style.display = 'block';
+            document.getElementById('code-output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyCode() {
+            const code = document.getElementById('generated-code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Code copied to clipboard!');
+            });
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.admin-modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize
+        initializeData();
+    </script>
+</body>
+</html>

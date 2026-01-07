@@ -1,177 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>My Webpage</title>
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- Popper.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
-    
- <script src="https://cdn.plyr.io/3.6.3/plyr.js"></script>
-  <!-- Custom JavaScript -->
-
-  </head>
-  <body>
-    <header>
-      <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <img class="img-fluid mr-3" width="100" style="border-radius: 50%" src="profile pic.jpg" alt="profile">
-        <a class="navbar-brand" href="#"><h1>S M Hemant</h1></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a class="nav-link" href="#contact">21f1004056@ds.study.iitm.ac.in</a></li>
-          </ul>
-        </div>
-      </nav>
-    </header>
-  <div class="container-fluid">
-    <div class="row">
-      <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
-        <div class="sidebar-sticky">
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="#about">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#education">Education</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#work-experience">Work Experience</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#projects">Projects</a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-  <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
-    <section id="about">
-      <h2>About Me</h2>
-      <p>Problem solver, interested in computers, space and robotics.
-      </p>
-    </section>
-    <section id="education">
-      <h2>Education</h2>
-      <ul>
-        <li></li>
-        <li></li>
-        <li class="text-success">Bachelor's Degree in Data Science from IIT Madras</li>
-      </ul>
-    </section>
-    <section id="experience">
-      <h2>Work Experience</h2>
-      <ul>
-        <li>IEM Assistant in Tata Steel</li>
-      </ul>
-    </section>
-    <section id="projects">
-      <h2>Projects</h2>
-      <ul>
-        <li>Project 1
-        <h2>Video</h2>
-        <div class="plyr__video-embed">
-        <video id="player" playsinline controls>
-          <!-- <source src="myvideo.mp4" type="video/mp4" /> -->
-        </video>
-        </div>
-        </li>
-        <li>Project 2
-          <h2>STL Model</h2>
-          <div id="container"></div>
-        </div>
-        </li>
-      </ul>
-    </section>
-
-    <div id="stl">
-
-    </section>
-  </main>
-    <script>
-        // STL files to be displayed
-        const stlFiles = [
-            './mymodel.glb'
-        ];
-
-        // Get all container elements
-        const containers = document.querySelectorAll('.stl-container');
-
-        // Function to initialize and load STL file in a given container
-        function loadSTL(container, file) {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-
-            const ambientLight = new THREE.AmbientLight(0x404040, 2);
-            scene.add(ambientLight);
-
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLight.position.set(1, 1, 1).normalize();
-            scene.add(directionalLight);
-
-            const loader = new THREE.STLLoader();
-            loader.load(file, function (geometry) {
-                const material = new THREE.MeshPhongMaterial({ color: 0x0077ff });
-                const mesh = new THREE.Mesh(geometry, material);
-                scene.add(mesh);
-
-                const middle = new THREE.Vector3();
-                geometry.computeBoundingBox();
-                geometry.boundingBox.getCenter(middle);
-                mesh.position.sub(middle);
-
-                camera.position.z = 100;
-                camera.position.y = 100;
-                camera.lookAt(mesh.position);
-
-                function animate() {
-                    requestAnimationFrame(animate);
-                    mesh.rotation.x += 0.01;
-                    mesh.rotation.y += 0.01;
-                    renderer.render(scene, camera);
-                }
-
-                animate();
-            });
-        }
-
-        // Load each STL file into its corresponding container
-        containers.forEach((container, index) => {
-            if (stlFiles[index]) {
-                loadSTL(container, stlFiles[index]);
-            }
-        });
-
-        // Handle window resize for each renderer
-        window.addEventListener('resize', () => {
-            containers.forEach(container => {
-                const canvas = container.querySelector('canvas');
-                if (canvas) {
-                    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-                    renderer.setSize(container.clientWidth, container.clientHeight);
-                }
-            });
-        }, false);
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shekhar Mohanty Hemant | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel" src="app.js"></script>
 </body>
 </html>
