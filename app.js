@@ -135,6 +135,14 @@ const researchData = [
 
 const blogData = [
     {
+        id: 0,
+        title: "My Resume / CV",
+        date: "February 8, 2026",
+        excerpt: "View or download my latest CV highlighting my education, experience, skills, and achievements.",
+        type: "pdf",
+        pdfUrl: "Shekhar_Mohanty_Hemant_CV.pdf"
+    },
+    {
         id: 1,
         title: "Getting Started with ROS2 Navigation Stack",
         date: "December 15, 2024",
@@ -419,6 +427,62 @@ function ResearchSection() {
 function BlogSection() {
     const [selectedPost, setSelectedPost] = useState(null);
 
+    // Merge hardcoded blogData with any admin-added PDFs from localStorage
+    const [allPosts, setAllPosts] = useState(() => {
+        const savedBlogs = localStorage.getItem('portfolio_blogs');
+        if (savedBlogs) {
+            try {
+                const parsed = JSON.parse(savedBlogs);
+                const savedIds = new Set(parsed.map(b => b.id));
+                const merged = [...parsed];
+                blogData.forEach(b => {
+                    if (!savedIds.has(b.id)) merged.push(b);
+                });
+                return merged;
+            } catch(e) { /* ignore */ }
+        }
+        return blogData;
+    });
+
+    // Full-page blog post view
+    if (selectedPost) {
+        return (
+            <section className={`section blog-fullpage ${selectedPost.type === 'pdf' ? 'blog-fullpage-pdf' : ''}`}>
+                <button className="blog-back-btn" onClick={() => setSelectedPost(null)}>
+                    <i className="fas fa-arrow-left"></i> Back to Blog
+                </button>
+                <article className="blog-full-article">
+                    <header className="blog-full-header">
+                        <div className="blog-full-date">
+                            {selectedPost.type === 'pdf' && <i className="fas fa-file-pdf" style={{ marginRight: '0.5rem' }}></i>}
+                            {selectedPost.date}
+                        </div>
+                        <h1 className="blog-full-title">{selectedPost.title}</h1>
+                    </header>
+                    {selectedPost.type === 'pdf' ? (
+                        <div className="blog-full-body blog-pdf-body">
+                            <iframe
+                                src={selectedPost.pdfUrl}
+                                className="blog-pdf-viewer"
+                                title={selectedPost.title}
+                            ></iframe>
+                            <a href={selectedPost.pdfUrl} target="_blank" rel="noopener noreferrer" className="pdf-download-link">
+                                <i className="fas fa-download"></i> Open / Download PDF
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="blog-full-body">
+                            {selectedPost.content.split('\n\n').map((paragraph, index) => (
+                                <p key={index}>{paragraph}</p>
+                            ))}
+                        </div>
+                    )}
+                </article>
+            </section>
+        );
+    }
+
+    // Blog list view
     return (
         <section className="section">
             <h2 className="section-title">
@@ -426,39 +490,28 @@ function BlogSection() {
                 {/* Personal Blog */}
             </h2>
             <div className="blog-list">
-                {blogData.map((post) => (
+                {allPosts.map((post) => (
                     <div 
                         key={post.id} 
                         className="blog-card"
                         onClick={() => setSelectedPost(post)}
                     >
-                        <div className="blog-date">{post.date}</div>
+                        <div className="blog-date">
+                            {post.type === 'pdf' && <i className="fas fa-file-pdf" style={{ marginRight: '0.5rem' }}></i>}
+                            {post.date}
+                        </div>
                         <h3 className="blog-title">{post.title}</h3>
                         <p className="blog-excerpt">{post.excerpt}</p>
                         <span className="read-more">
-                            Read More <i className="fas fa-arrow-right"></i>
+                            {post.type === 'pdf' ? (
+                                <>View PDF <i className="fas fa-file-pdf"></i></>
+                            ) : (
+                                <>Read More <i className="fas fa-arrow-right"></i></>
+                            )}
                         </span>
                     </div>
                 ))}
             </div>
-
-            {/* Modal for Blog Post */}
-            {selectedPost && (
-                <div className="modal-overlay" onClick={() => setSelectedPost(null)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <button className="modal-close" onClick={() => setSelectedPost(null)}>
-                            <i className="fas fa-times"></i>
-                        </button>
-                        <h2 className="modal-title">{selectedPost.title}</h2>
-                        <div className="modal-date">{selectedPost.date}</div>
-                        <div className="modal-body">
-                            {selectedPost.content.split('\n\n').map((paragraph, index) => (
-                                <p key={index}>{paragraph}</p>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
         </section>
     );
 }

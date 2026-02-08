@@ -936,6 +936,10 @@
                 <i class="fas fa-pen"></i>
                 Blog Posts
             </button>
+            <button class="tab" data-tab="blogpdfs">
+                <i class="fas fa-file-pdf"></i>
+                Blog PDFs
+            </button>
             <button class="tab" data-tab="projects">
                 <i class="fas fa-code"></i>
                 Projects
@@ -960,6 +964,18 @@
                 </button>
             </div>
             <div class="items-grid" id="blogs-list"></div>
+        </div>
+
+        <!-- Blog PDFs Section -->
+        <div class="content-section" id="blogpdfs-section">
+            <div class="section-header">
+                <h2 class="section-title">Blog PDFs</h2>
+                <button class="btn btn-primary" onclick="openModal('blogpdf')">
+                    <i class="fas fa-plus"></i>
+                    Add PDF
+                </button>
+            </div>
+            <div class="items-grid" id="blogpdfs-list"></div>
         </div>
 
         <!-- Projects Section -->
@@ -1163,6 +1179,45 @@
         </div>
     </div>
 
+    <!-- Blog PDF Modal -->
+    <div class="admin-modal-overlay" id="blogpdf-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="blogpdf-modal-title">Add PDF</h3>
+                <button class="modal-close" onclick="closeModal('blogpdf')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="blogpdf-edit-id">
+                <div class="form-group">
+                    <label class="form-label">PDF Title *</label>
+                    <input type="text" class="form-input" id="blogpdf-title" placeholder="e.g., My Resume / CV">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date *</label>
+                    <input type="text" class="form-input" id="blogpdf-date" placeholder="e.g., February 8, 2026">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description / Excerpt *</label>
+                    <textarea class="form-input" id="blogpdf-excerpt" rows="2" placeholder="A brief description shown in the blog list..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">PDF File URL *</label>
+                    <input type="text" class="form-input" id="blogpdf-url" placeholder="e.g., Shekhar_Mohanty_Hemant_CV.pdf or https://...">
+                    <p class="form-hint">Enter the filename (if in root folder) or a full URL to the PDF.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('blogpdf')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveBlogPdf()">
+                    <i class="fas fa-save"></i>
+                    Save PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
@@ -1190,6 +1245,7 @@
 
         // Data storage
         let blogs = [];
+        let blogPdfs = [];
         let projects = [];
         let research = [];
         let projectTechTags = [];
@@ -1198,6 +1254,7 @@
         function initializeData() {
             // Load from localStorage or use defaults
             const savedBlogs = localStorage.getItem('portfolio_blogs');
+            const savedBlogPdfs = localStorage.getItem('portfolio_blog_pdfs');
             const savedProjects = localStorage.getItem('portfolio_projects');
             const savedResearch = localStorage.getItem('portfolio_research');
 
@@ -1229,6 +1286,17 @@
                     date: "January 10, 2023",
                     excerpt: "A personal reflection on my unconventional path from a trade apprentice in electronics to pursuing a degree in Data Science at IIT Madras.",
                     content: "Every journey has its unique path, and mine was far from conventional. After completing my trade apprenticeship at Shavak Nanavati Technical Institute, I never imagined I would one day be studying at IIT Madras."
+                }
+            ];
+
+            blogPdfs = savedBlogPdfs ? JSON.parse(savedBlogPdfs) : [
+                {
+                    id: 100,
+                    title: "My Resume / CV",
+                    date: "February 8, 2026",
+                    excerpt: "View or download my latest CV highlighting my education, experience, skills, and achievements.",
+                    type: "pdf",
+                    pdfUrl: "Shekhar_Mohanty_Hemant_CV.pdf"
                 }
             ];
 
@@ -1286,7 +1354,8 @@
 
         // Save to localStorage
         function saveData() {
-            localStorage.setItem('portfolio_blogs', JSON.stringify(blogs));
+            localStorage.setItem('portfolio_blogs', JSON.stringify([...blogs, ...blogPdfs]));
+            localStorage.setItem('portfolio_blog_pdfs', JSON.stringify(blogPdfs));
             localStorage.setItem('portfolio_projects', JSON.stringify(projects));
             localStorage.setItem('portfolio_research', JSON.stringify(research));
         }
@@ -1346,6 +1415,12 @@
                 document.getElementById('research-year').value = '';
                 document.getElementById('research-abstract').value = '';
                 document.getElementById('research-link').value = '';
+            } else if (type === 'blogpdf') {
+                document.getElementById('blogpdf-edit-id').value = '';
+                document.getElementById('blogpdf-title').value = '';
+                document.getElementById('blogpdf-date').value = '';
+                document.getElementById('blogpdf-excerpt').value = '';
+                document.getElementById('blogpdf-url').value = '';
             }
         }
 
@@ -1381,6 +1456,15 @@
                     document.getElementById('research-abstract').value = res.abstract;
                     document.getElementById('research-link').value = res.link || '';
                 }
+            } else if (type === 'blogpdf') {
+                const pdf = blogPdfs.find(b => b.id === id);
+                if (pdf) {
+                    document.getElementById('blogpdf-edit-id').value = id;
+                    document.getElementById('blogpdf-title').value = pdf.title;
+                    document.getElementById('blogpdf-date').value = pdf.date;
+                    document.getElementById('blogpdf-excerpt').value = pdf.excerpt;
+                    document.getElementById('blogpdf-url').value = pdf.pdfUrl;
+                }
             }
         }
 
@@ -1411,6 +1495,35 @@
             renderBlogs();
             closeModal('blog');
             showToast('Blog post saved successfully!');
+        }
+
+        function saveBlogPdf() {
+            const editId = document.getElementById('blogpdf-edit-id').value;
+            const title = document.getElementById('blogpdf-title').value.trim();
+            const date = document.getElementById('blogpdf-date').value.trim();
+            const excerpt = document.getElementById('blogpdf-excerpt').value.trim();
+            const pdfUrl = document.getElementById('blogpdf-url').value.trim();
+
+            if (!title || !date || !excerpt || !pdfUrl) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (editId) {
+                const index = blogPdfs.findIndex(b => b.id === parseInt(editId));
+                if (index !== -1) {
+                    blogPdfs[index] = { ...blogPdfs[index], title, date, excerpt, pdfUrl };
+                }
+            } else {
+                const allIds = [...blogs.map(b => b.id), ...blogPdfs.map(b => b.id)];
+                const newId = allIds.length > 0 ? Math.max(...allIds) + 1 : 100;
+                blogPdfs.push({ id: newId, title, date, excerpt, type: "pdf", pdfUrl });
+            }
+
+            saveData();
+            renderBlogPdfs();
+            closeModal('blogpdf');
+            showToast('PDF entry saved successfully!');
         }
 
         function saveProject() {
@@ -1478,6 +1591,15 @@
                 saveData();
                 renderBlogs();
                 showToast('Blog post deleted');
+            }
+        }
+
+        function deleteBlogPdf(id) {
+            if (confirm('Are you sure you want to delete this PDF entry?')) {
+                blogPdfs = blogPdfs.filter(b => b.id !== id);
+                saveData();
+                renderBlogPdfs();
+                showToast('PDF entry deleted');
             }
         }
 
@@ -1565,6 +1687,40 @@
             `).join('');
         }
 
+        function renderBlogPdfs() {
+            const container = document.getElementById('blogpdfs-list');
+            if (blogPdfs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-pdf"></i>
+                        <p>No PDF entries yet. Click "Add PDF" to create one.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = blogPdfs.map(pdf => `
+                <div class="item-card">
+                    <div class="item-info">
+                        <h3 class="item-title"><i class="fas fa-file-pdf" style="color: var(--accent-primary); margin-right: 0.5rem;"></i>${pdf.title}</h3>
+                        <div class="item-meta">
+                            <span><i class="fas fa-calendar"></i> ${pdf.date}</span>
+                            <span><i class="fas fa-link"></i> ${pdf.pdfUrl}</span>
+                        </div>
+                        <p class="item-excerpt">${pdf.excerpt}</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="icon-btn" onclick="openModal('blogpdf', ${pdf.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteBlogPdf(${pdf.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function renderProjects() {
             const container = document.getElementById('projects-list');
             if (projects.length === 0) {
@@ -1635,6 +1791,7 @@
 
         function renderAll() {
             renderBlogs();
+            renderBlogPdfs();
             renderProjects();
             renderResearch();
         }
@@ -1658,7 +1815,7 @@ const profileData = {
     location: "${profileLocation}"
 };
 
-const blogData = ${JSON.stringify(blogs, null, 4).replace(/"(\w+)":/g, '$1:')};
+const blogData = ${JSON.stringify([...blogPdfs, ...blogs], null, 4).replace(/"(\w+)":/g, '$1:')};
 
 const projectsData = ${JSON.stringify(projects.map(p => ({
     title: p.title,
