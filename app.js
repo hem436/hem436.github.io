@@ -427,21 +427,37 @@ function ResearchSection() {
 function BlogSection() {
     const [selectedPost, setSelectedPost] = useState(null);
 
-    // Merge hardcoded blogData with any admin-added PDFs from localStorage
+    // Load blog posts and PDFs, using localStorage (admin) with hardcoded blogData as fallback
     const [allPosts, setAllPosts] = useState(() => {
+        let posts = [];
+        const seenIds = new Set();
+
+        // 1. Load admin-saved blog posts
         const savedBlogs = localStorage.getItem('portfolio_blogs');
         if (savedBlogs) {
             try {
-                const parsed = JSON.parse(savedBlogs);
-                const savedIds = new Set(parsed.map(b => b.id));
-                const merged = [...parsed];
-                blogData.forEach(b => {
-                    if (!savedIds.has(b.id)) merged.push(b);
+                JSON.parse(savedBlogs).forEach(b => {
+                    if (!seenIds.has(b.id)) { seenIds.add(b.id); posts.push(b); }
                 });
-                return merged;
             } catch(e) { /* ignore */ }
         }
-        return blogData;
+
+        // 2. Load admin-saved blog PDFs
+        const savedPdfs = localStorage.getItem('portfolio_blog_pdfs');
+        if (savedPdfs) {
+            try {
+                JSON.parse(savedPdfs).forEach(b => {
+                    if (!seenIds.has(b.id)) { seenIds.add(b.id); posts.push(b); }
+                });
+            } catch(e) { /* ignore */ }
+        }
+
+        // 3. Fill in any hardcoded defaults not already present
+        blogData.forEach(b => {
+            if (!seenIds.has(b.id)) { seenIds.add(b.id); posts.push(b); }
+        });
+
+        return posts;
     });
 
     // Full-page blog post view

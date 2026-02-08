@@ -920,6 +920,10 @@
                 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
                     <i class="fas fa-sun" id="theme-icon"></i>
                 </button>
+                <button class="btn btn-secondary" onclick="syncFromSite()" title="Sync all content from the live site's app.js">
+                    <i class="fas fa-sync-alt"></i>
+                    Sync from Site
+                </button>
                 <a href="index.html" class="btn btn-secondary" target="_blank">
                     <i class="fas fa-eye"></i>
                     Preview Site
@@ -1289,6 +1293,9 @@
                 }
             ];
 
+            // Clean up: remove any PDF entries that leaked into blogs from old save format
+            blogs = blogs.filter(b => b.type !== 'pdf');
+
             blogPdfs = savedBlogPdfs ? JSON.parse(savedBlogPdfs) : [
                 {
                     id: 100,
@@ -1350,11 +1357,14 @@
             ];
 
             renderAll();
+
+            // Auto-sync from app.js on first load to pick up any missing entries
+            syncFromSite();
         }
 
         // Save to localStorage
         function saveData() {
-            localStorage.setItem('portfolio_blogs', JSON.stringify([...blogs, ...blogPdfs]));
+            localStorage.setItem('portfolio_blogs', JSON.stringify(blogs));
             localStorage.setItem('portfolio_blog_pdfs', JSON.stringify(blogPdfs));
             localStorage.setItem('portfolio_projects', JSON.stringify(projects));
             localStorage.setItem('portfolio_research', JSON.stringify(research));
@@ -1866,6 +1876,84 @@ const researchData = ${JSON.stringify(research.map(r => ({
                 }
             });
         });
+
+        // Sync from site: fetch app.js, parse blogData/projectsData/researchData, merge into admin
+        function syncFromSite() {
+            fetch('app.js?_t=' + Date.now())
+                .then(res => res.text())
+                .then(code => {
+                    let synced = 0;
+
+                    // Extract blogData array from app.js
+                    const blogMatch = code.match(/const\s+blogData\s*=\s*(\[[\s\S]*?\n\];)/);
+                    if (blogMatch) {
+                        try {
+                            const siteBlogData = eval(blogMatch[1]);
+                            const blogIds = new Set(blogs.map(b => b.id));
+                            const pdfIds = new Set(blogPdfs.map(b => b.id));
+
+                            siteBlogData.forEach(entry => {
+                                if (entry.type === 'pdf') {
+                                    if (!pdfIds.has(entry.id)) {
+                                        blogPdfs.push(entry);
+                                        synced++;
+                                    }
+                                } else {
+                                    if (!blogIds.has(entry.id)) {
+                                        blogs.push(entry);
+                                        synced++;
+                                    }
+                                }
+                            });
+                        } catch(e) { console.error('Failed to parse blogData:', e); }
+                    }
+
+                    // Extract projectsData array from app.js
+                    const projMatch = code.match(/const\s+projectsData\s*=\s*(\[[\s\S]*?\n\];)/);
+                    if (projMatch) {
+                        try {
+                            const siteProjData = eval(projMatch[1]);
+                            const projIds = new Set(projects.map(p => p.id));
+                            siteProjData.forEach((entry, idx) => {
+                                const id = entry.id || idx + 1;
+                                if (!projIds.has(id)) {
+                                    projects.push({ ...entry, id });
+                                    synced++;
+                                }
+                            });
+                        } catch(e) { console.error('Failed to parse projectsData:', e); }
+                    }
+
+                    // Extract researchData array from app.js
+                    const resMatch = code.match(/const\s+researchData\s*=\s*(\[[\s\S]*?\n\];)/);
+                    if (resMatch) {
+                        try {
+                            const siteResData = eval(resMatch[1]);
+                            const resIds = new Set(research.map(r => r.id));
+                            siteResData.forEach((entry, idx) => {
+                                const id = entry.id || idx + 1;
+                                if (!resIds.has(id)) {
+                                    research.push({ ...entry, id });
+                                    synced++;
+                                }
+                            });
+                        } catch(e) { console.error('Failed to parse researchData:', e); }
+                    }
+
+                    saveData();
+                    renderAll();
+
+                    if (synced > 0) {
+                        showToast(`Synced ${synced} new item(s) from the site!`);
+                    } else {
+                        showToast('Everything is already in sync.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Sync failed:', err);
+                    showToast('Sync failed. Make sure app.js is accessible.');
+                });
+        }
 
         // Initialize
         initializeData();
