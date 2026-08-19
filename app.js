@@ -133,6 +133,33 @@ const researchData = [
     }
 ];
 
+const paperLibraryData = [
+    {
+        title: "Hyperbolic Point Cloud Representation",
+        fileName: "hyperbolic_point_cloud_representation.pdf"
+    },
+    {
+        title: "Parallel Diffusion Model",
+        fileName: "Parallel Diffusion model.pdf"
+    },
+    {
+        title: "MiniGPT",
+        fileName: "Minigpt.pdf"
+    },
+    {
+        title: "Flow DPS",
+        fileName: "Flow dps.pdf"
+    },
+    {
+        title: "Multimodal Alignment Survey",
+        fileName: "Multimodal_alignment_survey.pdf"
+    },
+    {
+        title: "PointLLM",
+        fileName: "Pointllm.pdf"
+    }
+];
+
 const blogData = [
     {
         id: 0,
@@ -418,6 +445,33 @@ function ResearchSection() {
                         </a>
                     </div>
                 ))}
+            </div>
+
+            <div className="paper-library-section">
+                <h3 className="paper-library-title">
+                    <i className="fas fa-folder-open"></i>
+                    Paper Library
+                </h3>
+                <div className="paper-library-grid">
+                    {paperLibraryData.map((paper, index) => (
+                        <a
+                            key={index}
+                            href={`assets/papers/${paper.fileName}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="paper-library-item"
+                            download
+                        >
+                            <div className="paper-icon">
+                                <i className="fas fa-file-pdf"></i>
+                            </div>
+                            <div className="paper-details">
+                                <div className="paper-title">{paper.title}</div>
+                                <div className="paper-file">{paper.fileName}</div>
+                            </div>
+                        </a>
+                    ))}
+                </div>
             </div>
         </section>
     );
