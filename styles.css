@@ -663,6 +663,10 @@ a:hover {
     background: var(--bg-secondary);
     color: var(--text-primary);
     transition: var(--transition);
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
 }
 
 .paper-library-item:hover {
@@ -700,6 +704,42 @@ a:hover {
     color: var(--text-secondary);
     font-size: 0.78rem;
     overflow-wrap: anywhere;
+}
+
+.research-back-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.research-back-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.research-pdf-viewer-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.research-pdf-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.research-pdf-viewer {
+    width: 100%;
+    min-height: 80vh;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: #fff;
 }
 
 /* ===== Blog Section ===== */

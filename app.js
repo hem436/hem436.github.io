@@ -418,6 +418,34 @@ function ProjectsSection() {
 
 // Research Section Component
 function ResearchSection() {
+    const [selectedPaper, setSelectedPaper] = useState(null);
+
+    if (selectedPaper) {
+        return (
+            <section className="section">
+                <button className="research-back-btn" onClick={() => setSelectedPaper(null)}>
+                    <i className="fas fa-arrow-left"></i> Back to Paper Library
+                </button>
+                <div className="research-pdf-viewer-wrap">
+                    <h3 className="research-pdf-title">{selectedPaper.title}</h3>
+                    <iframe
+                        src={`assets/papers/${selectedPaper.fileName}`}
+                        className="research-pdf-viewer"
+                        title={selectedPaper.title}
+                    ></iframe>
+                    <a
+                        href={`assets/papers/${selectedPaper.fileName}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-download-link"
+                    >
+                        <i className="fas fa-download"></i> Open / Download PDF
+                    </a>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="section">
             <h2 className="section-title">
@@ -454,13 +482,11 @@ function ResearchSection() {
                 </h3>
                 <div className="paper-library-grid">
                     {paperLibraryData.map((paper, index) => (
-                        <a
+                        <button
                             key={index}
-                            href={`assets/papers/${paper.fileName}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
                             className="paper-library-item"
-                            download
+                            type="button"
+                            onClick={() => setSelectedPaper(paper)}
                         >
                             <div className="paper-icon">
                                 <i className="fas fa-file-pdf"></i>
@@ -469,7 +495,7 @@ function ResearchSection() {
                                 <div className="paper-title">{paper.title}</div>
                                 <div className="paper-file">{paper.fileName}</div>
                             </div>
-                        </a>
+                        </button>
                     ))}
                 </div>
             </div>
