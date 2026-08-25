@@ -157,6 +157,10 @@ const paperLibraryData = [
     {
         title: "PointLLM",
         fileName: "Pointllm.pdf"
+    },
+    {
+        title: "lab meet 1",
+        fileName: "lab meet1.pdf"
     }
 ];
 
