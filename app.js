@@ -161,6 +161,15 @@ const paperLibraryData = [
     {
         title: "lab meet 1",
         fileName: "lab meet1.pdf"
+    },
+       {
+        title: "dingot1",
+        fileName: "dingot1.pdf"
+    }
+    ,
+       {
+        title: "realtime",
+        fileName: "realtime_max_bns.pdf"
     }
 ];
 
